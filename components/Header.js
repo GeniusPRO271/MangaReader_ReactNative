@@ -7,7 +7,7 @@ import {
   faRotateRight,
   faBars,
 } from '@fortawesome/free-solid-svg-icons';
-export default function Header() {
+export default function Header({getMovies, setLoading}) {
   return (
     <View style={styles.MainHeaderStyle}>
       <View style={styles.HeaderBackgroundColor_LeftSide}>
@@ -20,13 +20,14 @@ export default function Header() {
         <TouchableOpacity style={styles.IconStyle}>
           <FontAwesomeIcon icon={faBars} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconStyle}>
+        <TouchableOpacity style={styles.IconStyle} onPress={setLoading}>
           <FontAwesomeIcon icon={faRotateRight} />
         </TouchableOpacity>
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   MainHeaderStyle: {
     flexDirection: 'row',

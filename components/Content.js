@@ -2,49 +2,24 @@ import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {height, width} from './LibrabyData';
-
-const Content = () => {
-  const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState([]);
-  const [myBooks, setMyBooks] = useState([
-    '9780553562743',
-    '9780980200447',
-    '9780062798183',
-  ]);
+const Content = ({isLoading, myBooks, data}) => {
   const Book = ({item}) => {
     return (
       <TouchableOpacity style={styles.BookStyle}>
         <Image
           source={{uri: data[item].cover.large}}
-          style={{width: '100%', height: '100%'}}
+          style={styles.ImageStyle}
           resizeMode="cover"
         />
       </TouchableOpacity>
     );
   };
-  const getMovies = async () => {
-    try {
-      const response = await fetch(
-        `https://openlibrary.org/api/books?bibkeys=${myBooks}&jscmd=data&format=json`,
-      );
-      const json = await response.json();
-      setData(json);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    getMovies();
-  }, []);
   return (
     <View style={styles.MainContentStyle}>
       {!isLoading ? (
@@ -77,4 +52,5 @@ const styles = StyleSheet.create({
   OneBookContainerStyle: {
     justifyContent: 'flex-end',
   },
+  ImageStyle: {width: '100%', height: '100%'},
 });
