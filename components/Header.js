@@ -7,14 +7,16 @@ import {
   faRotateRight,
   faBars,
 } from '@fortawesome/free-solid-svg-icons';
-export default function Header({getMovies, setLoading}) {
+export default function Header({getMovies, setLoading, navigation}) {
   return (
     <View style={styles.MainHeaderStyle}>
       <View style={styles.HeaderBackgroundColor_LeftSide}>
         <Text style={styles.TextStle}>Library</Text>
       </View>
       <View style={styles.HeaderBackgroundColor_RightSide}>
-        <TouchableOpacity style={styles.IconStyle}>
+        <TouchableOpacity
+          style={styles.IconStyle}
+          onPress={() => navigation?.navigate('Search')}>
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.IconStyle}>

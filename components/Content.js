@@ -13,7 +13,7 @@ const Content = ({isLoading, myBooks, data}) => {
     return (
       <TouchableOpacity style={styles.BookStyle}>
         <Image
-          source={{uri: data[item].cover.large}}
+          source={{uri: data[item]?.cover.large}}
           style={styles.ImageStyle}
           resizeMode="cover"
         />
@@ -52,5 +52,5 @@ const styles = StyleSheet.create({
   OneBookContainerStyle: {
     justifyContent: 'flex-end',
   },
-  ImageStyle: {width: '100%', height: '100%'},
+  ImageStyle: {width: '100%', height: '100%', borderRadius: 5},
 });
