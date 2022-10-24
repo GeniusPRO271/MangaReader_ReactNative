@@ -10,18 +10,17 @@ import {
 export default function Header({getMovies, setLoading, navigation}) {
   return (
     <View style={styles.MainHeaderStyle}>
-      <View style={styles.HeaderBackgroundColor_LeftSide}>
-        <Text style={styles.TextStle}>Library</Text>
-      </View>
       <View style={styles.HeaderBackgroundColor_RightSide}>
         <TouchableOpacity
           style={styles.IconStyle}
           onPress={() => navigation?.navigate('Search')}>
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconStyle}>
-          <FontAwesomeIcon icon={faBars} />
-        </TouchableOpacity>
+      </View>
+      <View style={styles.HeaderBackgroundColor_LeftSide}>
+        <Text style={styles.TextStle}>My Library</Text>
+      </View>
+      <View style={styles.HeaderBackgroundColor_RightSide}>
         <TouchableOpacity style={styles.IconStyle} onPress={setLoading}>
           <FontAwesomeIcon icon={faRotateRight} />
         </TouchableOpacity>
@@ -36,23 +35,22 @@ const styles = StyleSheet.create({
     height: height * 0.07,
   },
   HeaderBackgroundColor_LeftSide: {
-    width: width * 0.5,
-    alignItems: 'flex-start',
+    width: width * 0.6,
+    alignItems: 'center',
     justifyContent: 'center',
     paddingLeft: 10,
   },
   HeaderBackgroundColor_RightSide: {
-    width: width * 0.5,
+    width: width * 0.2,
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     paddingRight: 10,
-    flexDirection: 'row',
   },
   IconStyle: {
     padding: 5,
   },
   TextStle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '300',
   },
 });

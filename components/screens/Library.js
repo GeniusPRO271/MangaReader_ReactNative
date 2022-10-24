@@ -8,7 +8,7 @@ export default function Library({navigation}) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [myBooks, setMyBooks] = useState([
-    '9780553562743',
+    '9780140444780',
     '9780980200447',
     '9780062798183',
   ]);
@@ -40,8 +40,13 @@ export default function Library({navigation}) {
         setLoading={ReLoadPage}
         navigation={navigation}
       />
-      <Content isLoading={isLoading} myBooks={myBooks} data={data} />
-      <Footer />
+      <Content
+        navigation={navigation}
+        isLoading={isLoading}
+        myBooks={myBooks}
+        data={data}
+      />
+      <Footer navigation={navigation} />
     </SafeAreaView>
   );
 }

@@ -8,12 +8,20 @@ import {
 } from 'react-native';
 import React from 'react';
 import {height, width} from './LibrabyData';
-const Content = ({isLoading, myBooks, data}) => {
+const Content = ({isLoading, myBooks, data, navigation}) => {
   const Book = ({item}) => {
+    const imgui = data[item]?.cover.large;
     return (
-      <TouchableOpacity style={styles.BookStyle}>
+      <TouchableOpacity
+        style={styles.BookStyle}
+        onPress={() =>
+          navigation.navigate('BookDetails', {
+            data: data,
+            item: item,
+          })
+        }>
         <Image
-          source={{uri: data[item]?.cover.large}}
+          source={{uri: imgui}}
           style={styles.ImageStyle}
           resizeMode="cover"
         />
@@ -34,8 +42,7 @@ export default Content;
 
 const styles = StyleSheet.create({
   MainContentStyle: {
-    backgroundColor: '#e3e3e3',
-    height: height * 0.83,
+    height: height * 0.82,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 2,
