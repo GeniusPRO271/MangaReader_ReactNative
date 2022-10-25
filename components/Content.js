@@ -42,7 +42,7 @@ export default Content;
 
 const styles = StyleSheet.create({
   MainContentStyle: {
-    height: height * 0.82,
+    height: height * 0.78,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 2,
