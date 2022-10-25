@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     width: width * 0.48,
     backgroundColor: 'white',
     height: 300,
-    borderRadius: 8,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 2,
@@ -59,5 +59,5 @@ const styles = StyleSheet.create({
   OneBookContainerStyle: {
     justifyContent: 'flex-end',
   },
-  ImageStyle: {width: '100%', height: '100%', borderRadius: 5},
+  ImageStyle: {width: '100%', height: '100%', borderRadius: 20},
 });

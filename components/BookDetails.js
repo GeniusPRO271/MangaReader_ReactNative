@@ -13,13 +13,12 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faArrowLeft,
   faBook,
-  faStar,
   faCalendarDays,
   faBookmark,
 } from '@fortawesome/free-solid-svg-icons';
 import {width, height} from './LibrabyData';
 import moment from 'moment';
-const Content = ({title, subTitle, authorslist, cover, pages, showDate}) => {
+const Content = ({title, authorslist, cover, pages, showDate}) => {
   const Cover = () => {
     return (
       <View style={styles.BookStyle}>
@@ -69,21 +68,16 @@ const Header = ({navigation}) => {
     <View style={styles.MainHeaderStyle}>
       <View style={{flex: 1}}>
         <TouchableOpacity
-          style={{paddingLeft: 15}}
-          onPress={() => navigation.goBack()}>
+          style={styles.IconLeftStye}
+          onPress={() => navigation.navigate('Library')}>
           <FontAwesomeIcon icon={faArrowLeft} />
         </TouchableOpacity>
       </View>
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+      <View style={styles.HeaderTitleContainer}>
         <Text style={styles.TextStyle}>Book</Text>
       </View>
-      <View style={{flex: 1, flexDirection: 'row-reverse'}}>
-        <TouchableOpacity style={{paddingRight: 15}}>
+      <View style={styles.HeaderLeftIconContainer}>
+        <TouchableOpacity style={styles.IconRightStye}>
           <FontAwesomeIcon icon={faBookmark} />
         </TouchableOpacity>
       </View>
@@ -95,7 +89,6 @@ export default function BookDetails({navigation}) {
   const data = route.params.data;
   const item = route.params.item;
   const title = data[item].title;
-  const subTitle = data[item].subtitle;
   const authors = data[item].authors;
   const cover = data[item].cover.large;
   const pages = data[item].number_of_pages;
@@ -110,7 +103,6 @@ export default function BookDetails({navigation}) {
       <Header navigation={navigation} />
       <Content
         title={title}
-        subTitle={subTitle}
         authorslist={authorslist}
         cover={cover}
         pages={pages}
@@ -122,6 +114,21 @@ export default function BookDetails({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  IconLeftStye: {
+    paddingLeft: 15,
+  },
+  IconRightStye: {
+    paddingRight: 15,
+  },
+  HeaderLeftIconContainer: {
+    flex: 1,
+    flexDirection: 'row-reverse',
+  },
+  HeaderTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   IconStyle: {
     paddingHorizontal: 15,
     alignItems: 'center',

@@ -11,12 +11,13 @@ export default function Library({navigation}) {
     '9780140444780',
     '9780980200447',
     '9780062798183',
+    '9780439023481',
   ]);
   const ReLoadPage = async () => {
     setLoading(true);
-    await getMovies();
+    await getBooks();
   };
-  const getMovies = async () => {
+  const getBooks = async () => {
     try {
       const response = await fetch(
         `https://openlibrary.org/api/books?bibkeys=${myBooks}&jscmd=data&format=json`,
@@ -31,12 +32,12 @@ export default function Library({navigation}) {
     }
   };
   useEffect(() => {
-    getMovies();
+    getBooks();
   }, []);
   return (
     <SafeAreaView>
       <Header
-        getMovies={getMovies}
+        getMovies={getBooks}
         setLoading={ReLoadPage}
         navigation={navigation}
       />
