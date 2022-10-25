@@ -10,20 +10,18 @@ export default function Search({navigation}) {
 
   const BookDetails = () => {
     if (data != null) {
-      if (data[item].title == undefined) {
-        Alert.alert('Alert Title', 'My Alert Msg', [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
-        ]);
-      } else
+      if (data[item] == undefined) {
+        Alert.alert(
+          'Book Not Found',
+          'Remember the search the book by its  IBSM10 or IBSM13 number',
+          [{text: 'Go Back', onPress: () => navigation.navigate('Library')}],
+        );
+      } else if (data[item]) {
         navigation.navigate('BookDetails', {
           data: data,
           item: item,
         });
+      }
     } else return <LoadingScreen />;
   };
   const getBooks = async () => {
