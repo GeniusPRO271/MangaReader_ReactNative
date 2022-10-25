@@ -49,6 +49,7 @@ export default function Header({getMovies, setLoading, navigation}) {
           <TextInput
             placeholder="SEARCH"
             style={styles.TextInputStyle}
+            placeholderTextColor="grey"
             onChangeText={newText => {
               setInput(newText);
             }}
@@ -76,7 +77,6 @@ export default function Header({getMovies, setLoading, navigation}) {
 
 const styles = StyleSheet.create({
   TextInputStyle: {
-    color: 'black',
     flex: 1,
     fontSize: 15,
   },

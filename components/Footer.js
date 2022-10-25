@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     width,
-    height: height * 0.1,
+    height: height * 0.08,
   },
   IconStyle: {
     alignItems: 'center',

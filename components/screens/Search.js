@@ -1,4 +1,4 @@
-import {SafeAreaView} from 'react-native';
+import {Alert, SafeAreaView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import LoadingScreen from '../LoadingScreen';
@@ -10,10 +10,18 @@ export default function Search({navigation}) {
 
   const BookDetails = () => {
     if (data != null) {
-      navigation.navigate('BookDetails', {
-        data: data,
-        item: item,
-      });
+      if (data[item] == undefined) {
+        Alert.alert(
+          'Book Not Found',
+          'Remember the search the book by its  IBSM10 or IBSM13 number',
+          [{text: 'Go Back', onPress: () => navigation.navigate('Library')}],
+        );
+      } else if (data[item]) {
+        navigation.navigate('BookDetails', {
+          data: data,
+          item: item,
+        });
+      }
     } else return <LoadingScreen />;
   };
   const getBooks = async () => {

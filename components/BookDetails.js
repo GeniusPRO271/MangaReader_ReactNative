@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   MainContentStyle: {
-    height: height * 0.82,
+    height: height * 0.78,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 2,
