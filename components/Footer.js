@@ -5,28 +5,20 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faBookBookmark,
   faClockRotateLeft,
-  faExclamationCircle,
-  faCompass,
   faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
-export default function Footer() {
+export default function Footer({navigation}) {
   return (
     <View style={styles.FooterBackground}>
-      <TouchableOpacity style={styles.IconStyle}>
+      <TouchableOpacity
+        style={styles.IconStyle}
+        onPress={() => navigation.navigate('Library')}>
         <FontAwesomeIcon icon={faBookBookmark} />
         <Text style={styles.TextStle}>Library</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.IconStyle}>
-        <FontAwesomeIcon icon={faExclamationCircle} />
-        <Text style={styles.TextStle}>Updates</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.IconStyle}>
         <FontAwesomeIcon icon={faClockRotateLeft} />
         <Text style={styles.TextStle}>History</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.IconStyle}>
-        <FontAwesomeIcon icon={faCompass} />
-        <Text style={styles.TextStle}>Browse</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.IconStyle}>
         <FontAwesomeIcon icon={faEllipsis} />
@@ -38,16 +30,15 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
   FooterBackground: {
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingRight: 10,
+    alignItems: 'center',
     flexDirection: 'row',
     width,
-    height: height * 0.07,
+    height: height * 0.1,
   },
   IconStyle: {
-    padding: 5,
     alignItems: 'center',
+    flex: 1,
     paddingHorizontal: 15,
     justifyContent: 'center',
   },

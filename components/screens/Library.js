@@ -8,15 +8,16 @@ export default function Library({navigation}) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [myBooks, setMyBooks] = useState([
-    '9780553562743',
+    '9780140444780',
     '9780980200447',
     '9780062798183',
+    '9780439023481',
   ]);
   const ReLoadPage = async () => {
     setLoading(true);
-    await getMovies();
+    await getBooks();
   };
-  const getMovies = async () => {
+  const getBooks = async () => {
     try {
       const response = await fetch(
         `https://openlibrary.org/api/books?bibkeys=${myBooks}&jscmd=data&format=json`,
@@ -31,17 +32,22 @@ export default function Library({navigation}) {
     }
   };
   useEffect(() => {
-    getMovies();
+    getBooks();
   }, []);
   return (
     <SafeAreaView>
       <Header
-        getMovies={getMovies}
+        getMovies={getBooks}
         setLoading={ReLoadPage}
         navigation={navigation}
       />
-      <Content isLoading={isLoading} myBooks={myBooks} data={data} />
-      <Footer />
+      <Content
+        navigation={navigation}
+        isLoading={isLoading}
+        myBooks={myBooks}
+        data={data}
+      />
+      <Footer navigation={navigation} />
     </SafeAreaView>
   );
 }
