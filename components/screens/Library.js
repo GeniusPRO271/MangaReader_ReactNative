@@ -4,18 +4,26 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Content from '../Content';
 import {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Library({navigation}) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-  const [myBooks, setMyBooks] = useState([
-    '9780140444780',
-    '9780980200447',
-    '9780062798183',
-    '9780439023481',
-  ]);
-  const ReLoadPage = async () => {
+  const [myBooks, setMyBooks] = useState([]);
+  const load = async () => {
+    try {
+      const response = await AsyncStorage.getItem('Library');
+      console.log(response);
+      if (response) {
+        console.log('yo');
+        setMyBooks(JSON.parse(response));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const ReLoadPage = () => {
     setLoading(true);
-    await getBooks();
+    load();
   };
   const getBooks = async () => {
     try {
@@ -24,16 +32,21 @@ export default function Library({navigation}) {
       );
       const json = await response.json();
       setData(json);
-      console.log(json);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getBooks();
+  }, [myBooks]);
+
+  useEffect(() => {
+    load();
   }, []);
+
   return (
     <SafeAreaView>
       <Header

@@ -5,8 +5,9 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Alert,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import Footer from './Footer';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
@@ -15,9 +16,13 @@ import {
   faBook,
   faCalendarDays,
   faBookmark,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import {width, height} from './LibrabyData';
 import moment from 'moment';
+import LoadingScreen from './LoadingScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Content = ({title, authorslist, cover, pages, showDate}) => {
   const Cover = () => {
     return (
@@ -63,13 +68,58 @@ const Content = ({title, authorslist, cover, pages, showDate}) => {
   );
 };
 
-const Header = ({navigation}) => {
+const Header = ({navigation, setIsSaved, isSaved, item}) => {
+  async function Delete() {
+    try {
+      const response = await AsyncStorage.getItem('Library'); // Get last data stored
+
+      let tempData = [];
+      if (response) {
+        tempData = [...JSON.parse(response)];
+      }
+      let index = tempData.indexOf(item);
+
+      if (index > -1) {
+        tempData.splice(index, 1);
+      }
+      console.log(JSON.stringify(tempData));
+      console.log('Deleted ', item, index);
+
+      await AsyncStorage.setItem('Library', JSON.stringify(tempData)); // Set new Array in local Storage
+      setIsSaved(false);
+    } catch (err) {
+      console.error(err); // Some error while storing data
+    }
+  }
+  async function save() {
+    try {
+      const response = await AsyncStorage.getItem('Library'); // Get last data stored
+
+      let tempData = [];
+
+      if (response) {
+        tempData = [...JSON.parse(response)];
+      }
+
+      tempData.push(item); // Push New element to array
+      console.log(JSON.stringify(tempData));
+
+      await AsyncStorage.setItem('Library', JSON.stringify(tempData)); // Set new Array in local Storage
+      setIsSaved(true);
+    } catch (err) {
+      console.error(err); // Some error while storing data
+    }
+  }
   return (
     <View style={styles.MainHeaderStyle}>
       <View style={{flex: 1}}>
         <TouchableOpacity
           style={styles.IconLeftStye}
-          onPress={() => navigation.navigate('Library')}>
+          onPress={() =>
+            navigation.navigate('Library', {
+              item: item,
+            })
+          }>
           <FontAwesomeIcon icon={faArrowLeft} />
         </TouchableOpacity>
       </View>
@@ -77,30 +127,131 @@ const Header = ({navigation}) => {
         <Text style={styles.TextStyle}>Book</Text>
       </View>
       <View style={styles.HeaderLeftIconContainer}>
-        <TouchableOpacity style={styles.IconRightStye}>
-          <FontAwesomeIcon icon={faBookmark} />
-        </TouchableOpacity>
+        {isSaved ? (
+          <TouchableOpacity
+            style={styles.IconRightStye}
+            onPress={() => {
+              Delete();
+            }}>
+            <FontAwesomeIcon icon={faCheck} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.IconRightStye}
+            onPress={() => {
+              save();
+            }}>
+            <FontAwesomeIcon icon={faBookmark} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 };
+
 export default function BookDetails({navigation}) {
+  async function CheckIfInData() {
+    try {
+      const response = await AsyncStorage.getItem('Library'); // Get last data stored
+
+      let tempData = [];
+
+      if (response) {
+        tempData = [...JSON.parse(response)];
+      }
+      if (tempData.indexOf(item) > -1) {
+        setIsSaved(true);
+      }
+      // Copy elements if array is not null // Push New element to array
+      console.log(JSON.stringify(tempData));
+    } catch (err) {
+      console.error(err); // Some error while storing data
+    }
+  }
+
+  const ErrMessage = () => {
+    if (loadingCount < 2) {
+      return <LoadingScreen navigation={navigation} />;
+    } else {
+      Alert.alert(
+        'Go Back',
+        'Remember to search your Book by ISBM 10 or ISBM 13',
+        [
+          {
+            text: 'Go Back',
+            onPress: () => navigation.navigate('Library'),
+          },
+        ],
+      );
+    }
+  };
+
+  const CheckData = () => {
+    setLoadingCount(loadingCount + 1);
+    console.log(loadingCount);
+    if (
+      data[item] &&
+      data[item].title &&
+      data[item].cover &&
+      data[item].number_of_pages &&
+      data[item].publish_date
+    ) {
+      return setDataCheck(true);
+    } else return setDataCheck(false);
+  };
+
+  const getBooks = async () => {
+    try {
+      const response = await fetch(
+        `https://openlibrary.org/api/books?bibkeys=${item}&jscmd=data&format=json`,
+      );
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const [isSaved, setIsSaved] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(0);
+  const [dataCheck, setDataCheck] = useState(false);
+  const [data, setData] = useState([]);
   const route = useRoute();
-  const data = route.params.data;
   const item = route.params.item;
-  const title = data[item].title;
-  const authors = data[item].authors;
-  const cover = data[item].cover.large;
-  const pages = data[item].number_of_pages;
-  const date = data[item].publish_date;
+  const title = data[item]?.title;
+  const authors = data[item]?.authors;
+  const cover = data[item]?.cover?.large;
+  const pages = data[item]?.number_of_pages;
+  const date = data[item]?.publish_date;
   const momentObj = moment(date, 'MMM Do, YYYY');
   const showDate = moment(momentObj).format('DD/MMM/YYYY');
-  const authorslist = authors.map((authors, index) => (
-    <Text key={index}>{index <= 0 && ` ${authors.name}`} </Text>
-  ));
-  return (
+  const authorslist =
+    dataCheck &&
+    authors.map((authors, index) => (
+      <Text key={index}>{index <= 0 && ` ${authors.name}`} </Text>
+    ));
+
+  useEffect(() => {
+    CheckIfInData(item);
+    setLoadingCount(0);
+    setDataCheck(false);
+    getBooks();
+  }, []);
+
+  useEffect(() => {
+    data && CheckData();
+  }, [data]);
+
+  return !dataCheck ? (
+    <SafeAreaView>{ErrMessage()}</SafeAreaView>
+  ) : (
     <SafeAreaView>
-      <Header navigation={navigation} />
+      <Header
+        navigation={navigation}
+        setIsSaved={setIsSaved}
+        isSaved={isSaved}
+        item={item}
+      />
       <Content
         title={title}
         authorslist={authorslist}
@@ -118,6 +269,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
   },
   IconRightStye: {
+    flexDirection: 'row',
     paddingRight: 15,
   },
   HeaderLeftIconContainer: {

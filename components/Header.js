@@ -56,7 +56,7 @@ export default function Header({getMovies, setLoading, navigation}) {
             onSubmitEditing={() => {
               setShowSearch(false),
                 input != '' &&
-                  navigation.navigate('Search', {
+                  navigation.navigate('BookDetails', {
                     item: input,
                   });
             }}

@@ -125,7 +125,7 @@
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 3;
 			usesTabs = 0;
 		};
 		83CBBA001A601CBA00E9B192 /* Products */ = {
