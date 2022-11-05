@@ -3,26 +3,27 @@ import React from 'react';
 import {width, height} from './LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
-  faBookBookmark,
-  faClockRotateLeft,
-  faEllipsis,
+  faHouse,
+  faHeart,
+  faBook,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 export default function Footer({navigation}) {
   return (
     <View style={styles.FooterBackground}>
       <TouchableOpacity
         style={styles.IconStyle}
-        onPress={() => navigation.navigate('Library')}>
-        <FontAwesomeIcon icon={faBookBookmark} />
-        <Text style={styles.TextStle}>Library</Text>
+        onPress={() => navigation.navigate('Home')}>
+        <FontAwesomeIcon icon={faHouse} size={20} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.IconStyle}>
-        <FontAwesomeIcon icon={faClockRotateLeft} />
-        <Text style={styles.TextStle}>History</Text>
+        <FontAwesomeIcon icon={faBook} size={20} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.IconStyle}>
-        <FontAwesomeIcon icon={faEllipsis} />
-        <Text style={styles.TextStle}>More</Text>
+        <FontAwesomeIcon icon={faHeart} size={20} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.IconStyle}>
+        <FontAwesomeIcon icon={faBars} size={20} />
       </TouchableOpacity>
     </View>
   );
@@ -32,9 +33,10 @@ const styles = StyleSheet.create({
   FooterBackground: {
     justifyContent: 'center',
     alignItems: 'center',
+    alignContent: 'center',
     flexDirection: 'row',
-    width,
-    height: height * 0.08,
+    width: '100%',
+    height: '10%',
   },
   IconStyle: {
     alignItems: 'center',

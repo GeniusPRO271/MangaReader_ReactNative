@@ -12,7 +12,7 @@ import {
   faMagnifyingGlass,
   faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
-export default function Header({getMovies, setLoading, navigation}) {
+export default function Header({setLoading, navigation, title}) {
   const [showSearch, setShowSearch] = useState(false);
   const [input, setInput] = useState('');
   const Title = () => {
@@ -23,7 +23,7 @@ export default function Header({getMovies, setLoading, navigation}) {
             styles.TextStle,
             showSearch ? {paddingLeft: 0} : {paddingLeft: 10},
           ]}>
-          My Library
+          {title}
         </Text>
       </View>
     );
@@ -54,11 +54,13 @@ export default function Header({getMovies, setLoading, navigation}) {
               setInput(newText);
             }}
             onSubmitEditing={() => {
+              console.log(input);
               setShowSearch(false),
-                input != '' &&
-                  navigation.navigate('BookDetails', {
-                    item: input,
-                  });
+                input != ''
+                  ? navigation.navigate('Search', {
+                      item: input,
+                    })
+                  : ReSearch(input);
             }}
           />
         )}
@@ -66,9 +68,11 @@ export default function Header({getMovies, setLoading, navigation}) {
       <Title />
       {!showSearch && (
         <View style={styles.HeaderBackgroundColor_IconRightSide}>
-          <TouchableOpacity style={styles.IconStyle} onPress={setLoading}>
-            <FontAwesomeIcon icon={faRotateRight} />
-          </TouchableOpacity>
+          {setLoading && (
+            <TouchableOpacity style={styles.IconStyle} onPress={setLoading}>
+              <FontAwesomeIcon icon={faRotateRight} />
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
   },
   MainHeaderStyle: {
     flexDirection: 'row',
-    height: height * 0.07,
+    height: '10%',
   },
   HeaderBackgroundColor_LeftSide: {
     width: width * 0.6,

@@ -53,6 +53,7 @@ export default function Library({navigation}) {
         getMovies={getBooks}
         setLoading={ReLoadPage}
         navigation={navigation}
+        title={'My Library'}
       />
       <Content
         navigation={navigation}
