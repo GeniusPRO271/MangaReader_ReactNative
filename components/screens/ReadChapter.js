@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
@@ -8,7 +9,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
-import {height} from '../LibrabyData';
+import {height, width} from '../LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faAngleLeft, faBars} from '@fortawesome/free-solid-svg-icons';
 
@@ -88,27 +89,29 @@ const ReadChapter = ({navigation}) => {
       <View
         style={{
           width: '100%',
-          height: '100%',
+          height: height,
           alignItems: 'center',
           justifyContent: 'center',
         }}>
         <Image
-          source={{
-            uri: uri,
-          }}
+          source={{uri: uri}}
           style={styles.ImageStyle}
-          resizeMode="contain"
+          resizeMode="stretch"
         />
       </View>
     );
   };
   return (
-    !isLoading && (
-      <View style={{flex: 1}}>
-        <Header />
+    <View style={{flex: 1}}>
+      <Header />
+      {!isLoading ? (
         <FlatList data={data} renderItem={Content} />
-      </View>
-    )
+      ) : (
+        <View>
+          <ActivityIndicator size={'large'} />
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -116,8 +119,8 @@ export default ReadChapter;
 
 const styles = StyleSheet.create({
   ImageStyle: {
-    width: '95%',
-    height: '100%',
+    width: width,
+    height: height * 0.9,
   },
   MainHeaderStyle: {
     height: 100,
