@@ -71,31 +71,23 @@ const Search = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
-          <View style={styles.RightIconStyle}>
-            <TouchableOpacity>
-              <FontAwesomeIcon
-                icon={faBars}
-                style={{margin: 15}}
-                size={20}
-                color={'#003049'}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.BottomBlockStyle}>
           <View style={styles.SearchBarStyle}>
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-              style={{margin: 10}}
-              color={'#003049'}
-            />
             <TextInput
-              style={{width: '80%'}}
-              placeholder="SEARCH"
+              style={{
+                width: '80%',
+                color: 'white',
+              }}
+              placeholder="Search"
+              placeholderTextColor={'white'}
               onChangeText={txt => setSearch(txt)}
               onSubmitEditing={() => {
                 input != '' && setInput(search);
               }}
+            />
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              style={{margin: 10}}
+              color={'#003049'}
             />
           </View>
         </View>
@@ -167,9 +159,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   BookStyle: {
-    width: width * 0.48,
-    backgroundColor: 'white',
-    height: 300,
+    width: width * 0.48 * 1,
+    height: 150 * 1.6 + 80,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -182,17 +173,15 @@ const styles = StyleSheet.create({
   },
   MainHeaderStyle: {
     backgroundColor: '#F77F00',
+    height: '15%',
     width: '100%',
-    height: '20%',
-    borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   SearchBarStyle: {
     flexDirection: 'row',
-    width: '60%',
-    height: '60%',
-    backgroundColor: 'white',
-    borderRadius: 10,
+    width: '80%',
+    height: '100%',
     alignItems: 'center',
   },
   BottomBlockStyle: {
@@ -208,9 +197,6 @@ const styles = StyleSheet.create({
   LeftIconStyle: {
     flex: 1,
     alignItems: 'flex-start',
-  },
-  RightIconStyle: {
-    flex: 1,
-    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
 });

@@ -12,17 +12,37 @@ import {useRoute} from '@react-navigation/native';
 import {height, width} from '../LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faAngleLeft, faBars} from '@fortawesome/free-solid-svg-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ReadChapter = ({navigation}) => {
   const route = useRoute();
   const chapterId = route.params.chapterId;
   const chapterTitle = route.params.chtitle;
   const chapterNum = route.params.numchapter;
+  const mangaId = route.params.mangaId;
   const [data, setData] = useState();
   const [urlforChapter, setUrlforChapter] = useState();
   const [hashforChapter, setHashforChapter] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
+  async function LastRead(id, chapterNum, chapterId, chapterTitle) {
+    try {
+      console.log('save', chapterId);
+      let tempData = [];
+
+      tempData.push({
+        id: id,
+        chapterNum: chapterNum,
+        chapterId: chapterId,
+        chapterTitle: chapterTitle,
+      });
+      console.log(JSON.stringify(tempData));
+
+      await AsyncStorage.setItem('LastRead', JSON.stringify(tempData)); // Set new Array in local Storage
+    } catch (err) {
+      console.error(err); // Some error while storing data
+    }
+  }
   const GetChaptersPages = async () => {
     const baseUrl = 'https://api.mangadex.org';
     const axios = require('axios');
@@ -41,10 +61,10 @@ const ReadChapter = ({navigation}) => {
     setIsLoading(false);
   };
   useEffect(() => {
+    LastRead(mangaId, chapterNum, chapterId, chapterTitle);
     GetChaptersPages();
   }, []);
   const Header = () => {
-    const [search, setSearch] = useState('');
     return (
       <View style={styles.MainHeaderStyle}>
         <View style={styles.TopBlockSafeAreaView}>
@@ -84,7 +104,6 @@ const ReadChapter = ({navigation}) => {
   };
   const Content = ({item}) => {
     let uri = `${urlforChapter}/data-saver/${hashforChapter}/${item}`;
-    console.log('Loaded', uri);
     return (
       <View
         style={{

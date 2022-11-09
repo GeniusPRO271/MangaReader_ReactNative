@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import React, {useState} from 'react';
-import {width, height} from './LibrabyData';
+import {width} from './LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faMagnifyingGlass,
@@ -56,11 +56,10 @@ export default function Header({setLoading, navigation, title}) {
             onSubmitEditing={() => {
               console.log(input);
               setShowSearch(false),
-                input != ''
-                  ? navigation.navigate('Search', {
-                      item: input,
-                    })
-                  : ReSearch(input);
+                input != '' &&
+                  navigation.navigate('Search', {
+                    item: input,
+                  });
             }}
           />
         )}

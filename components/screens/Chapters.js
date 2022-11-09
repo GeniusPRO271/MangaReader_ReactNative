@@ -68,7 +68,6 @@ const Chapters = ({navigation}) => {
   }, []);
 
   const Header = () => {
-    const [search, setSearch] = useState('');
     return (
       <View style={styles.MainHeaderStyle}>
         <View style={styles.TopBlockSafeAreaView}>
@@ -122,6 +121,7 @@ const Chapters = ({navigation}) => {
             chapterId: id,
             chtitle: title,
             numchapter: chapter,
+            mangaId: mangaId,
           })
         }>
         <Text style={{fontSize: 20}}>

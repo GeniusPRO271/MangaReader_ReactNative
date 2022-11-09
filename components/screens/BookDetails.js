@@ -17,7 +17,7 @@ import {
   faStar,
   faEye,
 } from '@fortawesome/free-solid-svg-icons';
-import {width} from '../LibrabyData';
+import {} from '../LibrabyData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BookDetails = ({navigation}) => {
@@ -27,10 +27,7 @@ const BookDetails = ({navigation}) => {
   const mangaid = match[4];
   const [isLoading, setIsLoading] = useState(true);
   const [bookData, setBookData] = useState([]);
-  const [authorData, setAuthorData] = useState([]);
-  const [bookgenre, setBookGenre] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
-  const [statisticsData, setStatisticsData] = useState([]);
   const baseUrl = 'https://api.mangadex.org';
 
   async function Delete(item) {
@@ -75,7 +72,6 @@ const BookDetails = ({navigation}) => {
 
   async function save(image, title, id) {
     try {
-      console.log('save', image);
       const response = await AsyncStorage.getItem('Library'); // Get last data stored
 
       let tempData = [];
@@ -100,25 +96,21 @@ const BookDetails = ({navigation}) => {
     const resp = await axios({
       method: 'GET',
       url: `${baseUrl}/manga/${mangaid}`,
-    });
-    let author = resp.data.data.relationships[0].id;
-    let genreToSave = [];
-    resp.data.data.attributes.tags.map((data, i) => {
-      return data.attributes.group == 'genre'
-        ? genreToSave.push(data.attributes.name.en)
-        : null;
-    });
-    setBookGenre(genreToSave);
-    const authorcall = await axios({
-      method: 'GET',
-      url: `${baseUrl}/author`,
       params: {
-        ids: [author],
+        includes: ['author'],
       },
     });
-    let authoreDa = authorcall.data.data.map(d => {
-      return d.attributes;
+    let data, author, follows, rating, description, title;
+    let dataAuthor = resp.data.data.relationships;
+    let genreToSave = [];
+    let tags = resp.data.data.attributes.tags;
+    dataAuthor.map(d => {
+      d.type == 'author' && (author = d.attributes.name);
     });
+    tags.map(
+      d =>
+        d.attributes.group == 'genre' && genreToSave.push(d.attributes.name.en),
+    );
     const statistics = await axios({
       method: 'GET',
       url: `${baseUrl}/statistics/manga`,
@@ -127,15 +119,30 @@ const BookDetails = ({navigation}) => {
       },
     });
 
-    setStatisticsData(statistics.data.statistics[mangaid]);
-    setAuthorData(authoreDa);
-    setBookData(resp.data.data.attributes);
+    follows = statistics.data.statistics[mangaid].follows;
+    rating = statistics.data.statistics[mangaid].rating.average;
+    description = resp.data.data.attributes.description.en;
+    title = resp.data.data.attributes.title.en;
+
+    data = [
+      {
+        id: mangaid,
+        title: title,
+        description: description,
+        rating: rating,
+        follows: follows,
+        author: author,
+        genre: genreToSave,
+      },
+    ];
+    setBookData(data);
     setIsLoading(false);
   };
-  const RenderGenre = () => {
-    return bookgenre.map((d, i) => {
+  const RenderGenre = ({genre}) => {
+    return genre.map(d => {
       return (
         <View
+          key={d}
           style={{
             backgroundColor: '#003049',
             justifyContent: 'center',
@@ -153,6 +160,8 @@ const BookDetails = ({navigation}) => {
     });
   };
   const Header = () => {
+    let title;
+    bookData.map(d => (title = d.title));
     return (
       <View style={styles.HeaderContainerStyle}>
         <TouchableOpacity
@@ -172,7 +181,7 @@ const BookDetails = ({navigation}) => {
           <TouchableOpacity
             style={styles.LeftIconHeaderStyle}
             onPress={() => {
-              save(img, bookData.title.en, mangaid);
+              save(img, title, mangaid);
             }}>
             <FontAwesomeIcon icon={faHeart} size={20} color={'#003049'} />
           </TouchableOpacity>
@@ -181,6 +190,8 @@ const BookDetails = ({navigation}) => {
     );
   };
   const Footer = () => {
+    let title;
+    bookData.map(d => (title = d.title));
     return (
       <View style={styles.containerStyleButton}>
         <TouchableOpacity
@@ -188,7 +199,7 @@ const BookDetails = ({navigation}) => {
           onPress={() =>
             navigation.navigate('Chapters', {
               mangaId: mangaid,
-              mangaTitle: bookData.title.en,
+              mangaTitle: title,
             })
           }>
           <Text style={styles.buttonTextStyle}>Start Reading</Text>
@@ -199,28 +210,39 @@ const BookDetails = ({navigation}) => {
   };
 
   const Content = () => {
-    let title = bookData.title.en;
-    let altTitleeJa = bookData.altTitles[0]?.ja;
-    let altTitleZh = bookData.altTitles[0]?.zh;
-    let follows = statisticsData.follows;
-    let rating = statisticsData.rating.average;
-    let authorsName = authorData.map(d => {
-      return d.name;
+    let id, title, description, rating, follows, author, genre;
+    bookData.map(d => {
+      (id = d.mangaid),
+        (title = d.title),
+        (description = d.description),
+        (rating = d.rating),
+        (follows = d.follows),
+        (author = d.author),
+        (genre = d.genre);
     });
-    let description = bookData.description.en;
+    console.log(genre);
     return (
       <View style={styles.ContentMainStyles}>
         <ScrollView
           bounces={false}
           contentContainerStyle={styles.ContentSafeAreaViewStyle}>
           <View style={styles.InsideScrollViewContentStyle}>
-            <Image
-              source={{
-                uri: img,
-              }}
-              style={styles.ImageStyle}
-              resizeMode="cover"
-            />
+            <View
+              style={{
+                width: 200 * 1,
+                height: 150 * 1.6 + 80,
+                marginHorizontal: 10,
+                borderRadius: 20,
+                backgroundColor: 'white',
+              }}>
+              <Image
+                source={{
+                  uri: img,
+                }}
+                style={styles.ImageStyle}
+                resizeMode="cover"
+              />
+            </View>
             <View style={styles.RatingContainerStyles}>
               <View style={styles.SecondRatingContainerStyles}>
                 <FontAwesomeIcon
@@ -229,7 +251,7 @@ const BookDetails = ({navigation}) => {
                   size={25}
                   color={'#003049'}
                 />
-                <Text style={{color: '#003049'}}>
+                <Text style={{color: 'white'}}>
                   {Math.round(rating * 10) / 10}
                 </Text>
               </View>
@@ -240,20 +262,18 @@ const BookDetails = ({navigation}) => {
                   size={25}
                   color={'#003049'}
                 />
-                <Text style={{color: '#003049'}}>{follows}</Text>
+                <Text style={{color: 'white'}}>{follows}</Text>
               </View>
             </View>
           </View>
           <View style={styles.AuthorTextContainerStyle}>
-            <Text style={styles.TextAuthorStyle}>{authorsName}</Text>
+            <Text style={styles.TextAuthorStyle}>{author}</Text>
           </View>
           <View style={styles.MangaTitleContainerStyle}>
-            <Text style={styles.MangaNameTextStyle}>
-              {title ? title : alttitleJa}
-            </Text>
+            <Text style={styles.MangaNameTextStyle}>{title}</Text>
           </View>
           <View style={styles.GenreContainerStyle}>
-            <RenderGenre />
+            <RenderGenre genre={genre} />
           </View>
           <View style={styles.DescriptionContainerStyle}>
             <Text style={styles.DescriptionTextStyle}>{description}</Text>
@@ -302,8 +322,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     alignItems: 'center',
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
   ContentSafeAreaViewStyle: {
     justifyContent: 'center',
@@ -316,9 +343,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ImageStyle: {
-    width: '50%',
-    height: '80%',
-    borderRadius: 20,
+    width: '100%',
+    height: '100%',
+    borderRadius: 15,
   },
   AuthorTextContainerStyle: {
     width: '100%',
@@ -335,6 +362,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 1,
   },
   MangaNameTextStyle: {
     fontWeight: '500',
