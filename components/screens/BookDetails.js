@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  FlatList,
   Image,
   SafeAreaView,
   ScrollView,
@@ -11,14 +12,14 @@ import {
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {
-  faHeart,
-  faAngleLeft,
-  faStar,
-  faEye,
-} from '@fortawesome/free-solid-svg-icons';
-import {} from '../LibrabyData';
+import {faHeart, faAngleLeft, faStar} from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 const BookDetails = ({navigation}) => {
   const route = useRoute();
@@ -29,6 +30,12 @@ const BookDetails = ({navigation}) => {
   const [bookData, setBookData] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
   const baseUrl = 'https://api.mangadex.org';
+  const scaleValue = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{scale: scaleValue.value}],
+    };
+  });
 
   async function Delete(item) {
     try {
@@ -100,12 +107,14 @@ const BookDetails = ({navigation}) => {
         includes: ['author'],
       },
     });
-    let data, author, follows, rating, description, title;
+    let data, author, follows, rating, description, title, authorDescription;
     let dataAuthor = resp.data.data.relationships;
     let genreToSave = [];
     let tags = resp.data.data.attributes.tags;
     dataAuthor.map(d => {
-      d.type == 'author' && (author = d.attributes.name);
+      d.type == 'author' &&
+        ((author = d.attributes.name),
+        (authorDescription = d.attributes.biography.en));
     });
     tags.map(
       d =>
@@ -132,32 +141,31 @@ const BookDetails = ({navigation}) => {
         rating: rating,
         follows: follows,
         author: author,
+        authorDescription: authorDescription,
         genre: genreToSave,
       },
     ];
     setBookData(data);
     setIsLoading(false);
   };
-  const RenderGenre = ({genre}) => {
-    return genre.map(d => {
-      return (
-        <View
-          key={d}
-          style={{
-            backgroundColor: '#003049',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 20,
-            height: 30,
-            width: 90,
-            margin: 2,
-          }}>
-          <Text style={{fontWeight: '300', fontSize: 12, color: '#eae2b7'}}>
-            {d}
-          </Text>
-        </View>
-      );
-    });
+  const RenderGenre = ({item}) => {
+    return (
+      <View
+        key={item}
+        style={{
+          backgroundColor: '#003049',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 20,
+          height: 30,
+          width: 90,
+          margin: 2,
+        }}>
+        <Text style={{fontWeight: '300', fontSize: 12, color: '#eae2b7'}}>
+          {item}
+        </Text>
+      </View>
+    );
   };
   const Header = () => {
     let title;
@@ -167,25 +175,23 @@ const BookDetails = ({navigation}) => {
         <TouchableOpacity
           style={{width: '50%'}}
           onPress={() => navigation.goBack()}>
-          <FontAwesomeIcon icon={faAngleLeft} size={20} color={'#003049'} />
+          <FontAwesomeIcon icon={faAngleLeft} size={20} color={'#F77f00'} />
         </TouchableOpacity>
-        {isSaved ? (
-          <TouchableOpacity
-            style={styles.LeftIconHeaderStyle}
-            onPress={() => {
-              Delete(img);
-            }}>
-            <FontAwesomeIcon icon={faHeart} size={20} color={'#D62828'} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.LeftIconHeaderStyle}
-            onPress={() => {
-              save(img, title, mangaid);
-            }}>
-            <FontAwesomeIcon icon={faHeart} size={20} color={'#003049'} />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[styles.LeftIconHeaderStyle]}
+          onPress={() => {
+            scaleValue.value = withRepeat(withTiming(1.2), 2, true);
+            isSaved ? Delete(img) : save(img, title, mangaid);
+          }}>
+          <Animated.View style={animatedStyle}>
+            <FontAwesomeIcon
+              icon={faHeart}
+              size={20}
+              color={isSaved ? '#D62828' : '#F77f00'}
+              style={{flex: 1}}
+            />
+          </Animated.View>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -204,13 +210,19 @@ const BookDetails = ({navigation}) => {
           }>
           <Text style={styles.buttonTextStyle}>Start Reading</Text>
         </TouchableOpacity>
-        <View style={{height: 50}} />
       </View>
     );
   };
 
   const Content = () => {
-    let id, title, description, rating, follows, author, genre;
+    let id,
+      title,
+      description,
+      rating,
+      follows,
+      author,
+      genre,
+      authorDescription;
     bookData.map(d => {
       (id = d.mangaid),
         (title = d.title),
@@ -218,15 +230,35 @@ const BookDetails = ({navigation}) => {
         (rating = d.rating),
         (follows = d.follows),
         (author = d.author),
+        (authorDescription = d.authorDescription),
         (genre = d.genre);
     });
-    console.log(genre);
     return (
       <View style={styles.ContentMainStyles}>
         <ScrollView
+          showsVerticalScrollIndicator={false}
           bounces={false}
           contentContainerStyle={styles.ContentSafeAreaViewStyle}>
           <View style={styles.InsideScrollViewContentStyle}>
+            <View style={styles.AuthorTextContainerStyle}>
+              <Text style={styles.TextAuthorStyle}>{author}</Text>
+            </View>
+            <View style={styles.MangaTitleContainerStyle}>
+              <Text style={styles.MangaNameTextStyle}>{title}</Text>
+            </View>
+            <View style={styles.RatingContainerStyles}>
+              <View style={styles.SecondRatingContainerStyles}>
+                <FontAwesomeIcon
+                  icon={faStar}
+                  style={{margin: 8}}
+                  size={12}
+                  color={'#F77f00'}
+                />
+                <Text style={{fontSize: 12, opacity: 0.3, color: '#003049'}}>
+                  {Math.round(rating * 10) / 10} ( {follows} reviews )
+                </Text>
+              </View>
+            </View>
             <View
               style={{
                 width: 200 * 1,
@@ -243,42 +275,59 @@ const BookDetails = ({navigation}) => {
                 resizeMode="cover"
               />
             </View>
-            <View style={styles.RatingContainerStyles}>
-              <View style={styles.SecondRatingContainerStyles}>
-                <FontAwesomeIcon
-                  icon={faStar}
-                  style={{marginHorizontal: 20}}
-                  size={25}
-                  color={'#003049'}
-                />
-                <Text style={{color: 'white'}}>
-                  {Math.round(rating * 10) / 10}
+          </View>
+          <View
+            style={{
+              padding: 20,
+              borderTopLeftRadius: 45,
+              borderTopRightRadius: 45,
+              flex: 1,
+              backgroundColor: 'white',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+
+              elevation: 5,
+            }}>
+            <FlatList
+              horizontal
+              data={genre}
+              renderItem={RenderGenre}
+              showsHorizontalScrollIndicator={false}
+            />
+            <View style={styles.DescriptionContainerStyle}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  paddingVertical: 10,
+                }}>
+                About The Manga
+              </Text>
+              <Text style={styles.DescriptionTextStyle}>{description}</Text>
+            </View>
+            {authorDescription && (
+              <View style={styles.DescriptionContainerStyle}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    width: '100%',
+                    paddingVertical: 10,
+                  }}>
+                  About The Author
+                </Text>
+                <Text style={styles.DescriptionTextStyle}>
+                  {authorDescription}
                 </Text>
               </View>
-              <View style={styles.SecondRatingContainerStyles}>
-                <FontAwesomeIcon
-                  icon={faEye}
-                  style={{marginHorizontal: 20}}
-                  size={25}
-                  color={'#003049'}
-                />
-                <Text style={{color: 'white'}}>{follows}</Text>
-              </View>
-            </View>
+            )}
           </View>
-          <View style={styles.AuthorTextContainerStyle}>
-            <Text style={styles.TextAuthorStyle}>{author}</Text>
-          </View>
-          <View style={styles.MangaTitleContainerStyle}>
-            <Text style={styles.MangaNameTextStyle}>{title}</Text>
-          </View>
-          <View style={styles.GenreContainerStyle}>
-            <RenderGenre genre={genre} />
-          </View>
-          <View style={styles.DescriptionContainerStyle}>
-            <Text style={styles.DescriptionTextStyle}>{description}</Text>
-          </View>
-          <Footer />
         </ScrollView>
       </View>
     );
@@ -296,6 +345,7 @@ const BookDetails = ({navigation}) => {
     <View style={{flex: 1}}>
       <Header />
       <Content />
+      <Footer />
     </View>
   );
 };
@@ -307,36 +357,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   RatingContainerStyles: {
     flexDirection: 'row',
-    width: '50%',
-    height: 80,
+    flex: 1,
+    paddingBottom: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   InsideScrollViewContentStyle: {
-    backgroundColor: '#F77f00',
+    backgroundColor: 'white',
     width: '100%',
-    height: 400,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    flex: 1,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-
-    elevation: 5,
+    paddingBottom: 15,
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   ContentSafeAreaViewStyle: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ContentMainStyles: {flexDirection: 'column-reverse', flex: 1},
+  ContentMainStyles: {
+    flexDirection: 'column-reverse',
+    flex: 1,
+    backgroundColor: 'white',
+  },
   ActivityIndicatorStyleContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -374,14 +421,10 @@ const styles = StyleSheet.create({
     width: '80%',
     flexDirection: 'row',
     flex: 1,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
+    backgroundColor: 'red',
   },
   DescriptionContainerStyle: {
-    width: '85%',
-    height: 150,
+    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
@@ -399,17 +442,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '60%',
     height: 50,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
   },
   buttonTextStyle: {
-    color: '#003049',
-    fontWeight: '700',
+    color: 'white',
+    fontWeight: '500',
     fontSize: 20,
   },
   containerStyleButton: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    height: '10%',
+    backgroundColor: 'white',
+    opacity: 20,
   },
   HeaderContainerStyle: {
     width: '100%',
@@ -418,7 +472,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 30,
     paddingHorizontal: 15,
-    backgroundColor: '#F77f00',
+    backgroundColor: 'white',
   },
   LeftIconHeaderStyle: {
     alignItems: 'flex-end',

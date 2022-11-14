@@ -1,7 +1,5 @@
 import {
   FlatList,
-  SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -10,7 +8,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
-import {faAngleLeft, faBars, faJar} from '@fortawesome/free-solid-svg-icons';
+import {faAngleLeft, faBars} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 
 const Chapters = ({navigation}) => {
@@ -19,7 +17,6 @@ const Chapters = ({navigation}) => {
   const mangaTitle = route.params?.mangaTitle;
   const [isLoading, SetIsLoading] = useState(true);
   const [chapters, setChapters] = useState();
-  const [data, setData] = useState([]);
   const tosave = [];
 
   const GetChapters = async (offset, tosave) => {

@@ -1,114 +1,71 @@
 import {
+  SafeAreaView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useState} from 'react';
-import {width} from './LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {
-  faMagnifyingGlass,
-  faRotateRight,
-} from '@fortawesome/free-solid-svg-icons';
-export default function Header({setLoading, navigation, title}) {
-  const [showSearch, setShowSearch] = useState(false);
+import {faBars, faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
+export default function Header({navigation}) {
   const [input, setInput] = useState('');
-  const Title = () => {
-    return (
-      <View style={styles.HeaderBackgroundColor_LeftSide}>
-        <Text
-          style={[
-            styles.TextStle,
-            showSearch ? {paddingLeft: 0} : {paddingLeft: 10},
-          ]}>
-          {title}
-        </Text>
-      </View>
-    );
-  };
   return (
-    <View style={styles.MainHeaderStyle}>
-      <View
-        style={[
-          styles.HeaderBackgroundColor_IconLeftSide,
-          showSearch
-            ? {width: width * 0.5, paddingLeft: 20}
-            : {width: width * 0.2},
-        ]}>
-        <TouchableOpacity
-          style={styles.IconStyle}
-          onPress={() => {
-            showSearch ? setShowSearch(false) : setShowSearch(true),
-              setInput('');
-          }}>
-          <FontAwesomeIcon icon={faMagnifyingGlass} />
-        </TouchableOpacity>
-        {showSearch && (
+    <View style={styles.HeaderMainStyle}>
+      <SafeAreaView style={styles.TopBlockSafeAreaView}>
+        <View style={styles.SearchBarStyle}>
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            style={{margin: 10}}
+            color={'#F77F00'}
+          />
           <TextInput
+            style={{width: '80%'}}
             placeholder="SEARCH"
-            style={styles.TextInputStyle}
-            placeholderTextColor="grey"
-            onChangeText={newText => {
-              setInput(newText);
-            }}
+            onChangeText={txt => setInput(txt)}
             onSubmitEditing={() => {
-              console.log(input);
-              setShowSearch(false),
-                input != '' &&
-                  navigation.navigate('Search', {
-                    item: input,
-                  });
+              input != '' &&
+                navigation.navigate('Search', {
+                  item: input,
+                });
             }}
           />
-        )}
-      </View>
-      <Title />
-      {!showSearch && (
-        <View style={styles.HeaderBackgroundColor_IconRightSide}>
-          {setLoading && (
-            <TouchableOpacity style={styles.IconStyle} onPress={setLoading}>
-              <FontAwesomeIcon icon={faRotateRight} />
-            </TouchableOpacity>
-          )}
         </View>
-      )}
+        <View style={styles.TopBlockStyle}>
+          <TouchableOpacity>
+            <FontAwesomeIcon
+              icon={faBars}
+              style={{margin: 15}}
+              size={20}
+              color={'#F77F00'}
+            />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  TextInputStyle: {
-    flex: 1,
-    fontSize: 15,
-  },
-  MainHeaderStyle: {
-    flexDirection: 'row',
+  HeaderMainStyle: {
+    backgroundColor: 'white',
     height: '10%',
+    width: '100%',
   },
-  HeaderBackgroundColor_LeftSide: {
-    width: width * 0.6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  HeaderBackgroundColor_IconLeftSide: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingRight: 10,
+  SearchBarStyle: {
     flexDirection: 'row',
-  },
-  HeaderBackgroundColor_IconRightSide: {
-    width: width * 0.2,
+    width: '80%',
+    height: '100%',
+    backgroundColor: 'white',
     alignItems: 'center',
+  },
+  TopBlockStyle: {
+    flex: 1,
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    paddingRight: 10,
   },
-  IconStyle: {
-    padding: 5,
-  },
-  TextStle: {
-    fontSize: 20,
-    fontWeight: '300',
+  TopBlockSafeAreaView: {
+    flexDirection: 'row',
+    flex: 1,
   },
 });

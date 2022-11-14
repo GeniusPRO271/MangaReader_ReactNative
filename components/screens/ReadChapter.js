@@ -2,7 +2,9 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  SafeAreaView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -11,8 +13,20 @@ import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import {height, width} from '../LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faAngleLeft, faBars} from '@fortawesome/free-solid-svg-icons';
+import {
+  faAngleLeft,
+  faBars,
+  faGear,
+  faHeart,
+  faHouse,
+} from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import TabBar from '../TabBar';
 
 const ReadChapter = ({navigation}) => {
   const route = useRoute();
@@ -24,6 +38,27 @@ const ReadChapter = ({navigation}) => {
   const [urlforChapter, setUrlforChapter] = useState();
   const [hashforChapter, setHashforChapter] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const scaleValue = useSharedValue(1);
+  const moveXValue = useSharedValue(0);
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: withTiming(scaleValue.value, {
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        },
+        {
+          translateX: withTiming(moveXValue.value, {
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        },
+      ],
+    };
+  });
 
   async function LastRead(id, chapterNum, chapterId, chapterTitle) {
     try {
@@ -66,7 +101,7 @@ const ReadChapter = ({navigation}) => {
   }, []);
   const Header = () => {
     return (
-      <View style={styles.MainHeaderStyle}>
+      <View style={[styles.MainHeaderStyle]}>
         <View style={styles.TopBlockSafeAreaView}>
           <View style={styles.LeftIconStyle}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -89,7 +124,14 @@ const ReadChapter = ({navigation}) => {
             </Text>
           </View>
           <View style={styles.RightIconStyle}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                showMenu ? (scaleValue.value = 1) : (scaleValue.value = 0.88);
+                showMenu
+                  ? (moveXValue.value = 0)
+                  : (moveXValue.value = -width * 0.55),
+                  setShowMenu(!showMenu);
+              }}>
               <FontAwesomeIcon
                 icon={faBars}
                 style={{margin: 15}}
@@ -122,14 +164,26 @@ const ReadChapter = ({navigation}) => {
   };
   return (
     <View style={{flex: 1}}>
-      <Header />
-      {!isLoading ? (
-        <FlatList data={data} renderItem={Content} />
-      ) : (
-        <View>
-          <ActivityIndicator size={'large'} />
-        </View>
-      )}
+      <TabBar navigation={navigation} />
+      <Animated.View
+        style={[
+          styles.MainContainer,
+          animatedStyles,
+          {borderRadius: showMenu ? 20 : 0},
+        ]}>
+        <Header />
+        {!isLoading ? (
+          <FlatList
+            data={data}
+            renderItem={Content}
+            style={{borderRadius: showMenu ? 20 : 0}}
+          />
+        ) : (
+          <View>
+            <ActivityIndicator size={'large'} />
+          </View>
+        )}
+      </Animated.View>
     </View>
   );
 };
@@ -137,6 +191,16 @@ const ReadChapter = ({navigation}) => {
 export default ReadChapter;
 
 const styles = StyleSheet.create({
+  MainContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
   ImageStyle: {
     width: width,
     height: height * 0.9,
@@ -148,8 +212,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     backgroundColor: '#F77F00',
     alignItems: 'center',
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
   },
   TopBlockSafeAreaView: {
     flexDirection: 'row',

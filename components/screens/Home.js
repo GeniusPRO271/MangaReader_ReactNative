@@ -20,43 +20,12 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import {width} from '../LibrabyData';
-const Header = ({navigation}) => {
-  const [input, setInput] = useState('');
-  return (
-    <View style={styles.HeaderMainStyle}>
-      <SafeAreaView style={styles.TopBlockSafeAreaView}>
-        <View style={styles.SearchBarStyle}>
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            style={{margin: 10}}
-            color={'#F77F00'}
-          />
-          <TextInput
-            style={{width: '80%'}}
-            placeholder="SEARCH"
-            onChangeText={txt => setInput(txt)}
-            onSubmitEditing={() => {
-              input != '' &&
-                navigation.navigate('Search', {
-                  item: input,
-                });
-            }}
-          />
-        </View>
-        <View style={styles.TopBlockStyle}>
-          <TouchableOpacity>
-            <FontAwesomeIcon
-              icon={faBars}
-              style={{margin: 15}}
-              size={20}
-              color={'#F77F00'}
-            />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </View>
-  );
-};
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import TabBar from '../TabBar';
 const BookFavortie = ({item, navigation}) => {
   let title = item.title;
   let img = item.ui;
@@ -191,10 +160,74 @@ export default function Home({navigation, props}) {
   const [isLoading, setIsLoading] = useState(true);
   const [lastRead, setLastRead] = useState([]);
   const [lastReadData, setlastReadData] = useState([]);
+  const [showMenu, setShowMenu] = useState(false);
   const isFocused = useIsFocused();
   const baseUrl = 'https://api.mangadex.org';
   const axios = require('axios');
-
+  const scaleValue = useSharedValue(1);
+  const moveXValue = useSharedValue(0);
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: withTiming(scaleValue.value, {
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        },
+        {
+          translateX: withTiming(moveXValue.value, {
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        },
+      ],
+    };
+  });
+  const Header = () => {
+    const [input, setInput] = useState('');
+    return (
+      <View style={[styles.HeaderMainStyle, {borderRadius: showMenu ? 20 : 0}]}>
+        <SafeAreaView style={styles.TopBlockSafeAreaView}>
+          <View style={styles.SearchBarStyle}>
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              style={{margin: 10}}
+              color={'#F77F00'}
+            />
+            <TextInput
+              style={{width: '80%'}}
+              placeholder="SEARCH"
+              onChangeText={txt => setInput(txt)}
+              onSubmitEditing={() => {
+                input != '' &&
+                  navigation.navigate('Search', {
+                    item: input,
+                  });
+              }}
+            />
+          </View>
+          <View style={styles.TopBlockStyle}>
+            <TouchableOpacity
+              onPress={() => {
+                showMenu ? (scaleValue.value = 1) : (scaleValue.value = 0.88);
+                showMenu
+                  ? (moveXValue.value = 0)
+                  : (moveXValue.value = -width * 0.55),
+                  setShowMenu(!showMenu);
+              }}>
+              <FontAwesomeIcon
+                icon={faBars}
+                style={{margin: 15}}
+                size={20}
+                color={'#F77F00'}
+              />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  };
   const LoadFavorite = async () => {
     try {
       const response = await AsyncStorage.getItem('Library');
@@ -328,7 +361,13 @@ export default function Home({navigation, props}) {
     return (
       <View style={styles.LastReadContainerStyle}>
         <View style={{flex: 1}}>
-          <View style={{width: 150 * 1, height: 150 * 1.6 + 80}}>
+          <TouchableOpacity
+            style={{width: 150 * 1, height: 150 * 1.6 + 80}}
+            onPress={() =>
+              navigation.navigate('BookDetails', {
+                img: uri,
+              })
+            }>
             <Image
               source={{
                 uri: uri,
@@ -336,7 +375,7 @@ export default function Home({navigation, props}) {
               style={styles.ImageStyle}
               resizeMode="cover"
             />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={{flex: 1}}>
           <View style={{height: '80%', width: '100%', paddingTop: 5}}>
@@ -382,35 +421,59 @@ export default function Home({navigation, props}) {
     GetData();
   }, []);
   useEffect(() => {
+    scaleValue.value = 1;
+    moveXValue.value = 0;
+    setShowMenu(false);
     isFocused && LoadLastRead() && LoadFavorite();
   }, [isFocused]);
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
-      <Header navigation={navigation} />
-      <ScrollView bounces={false}>
-        {lastReadData.length > 0 && <LastRead />}
-        <Container
-          uriCovers={uriCovers}
-          navigation={navigation}
-          Description={'Most Reading Mangas'}
-          Title={'Popular Manga'}
-          isLoading={isLoading}
-        />
-        {favorites.length > 0 && (
-          <Favorite
-            uriCovers={favorites}
+    <View style={{flex: 1}}>
+      <TabBar navigation={navigation} />
+      <Animated.View
+        style={[
+          styles.MainContainer,
+          animatedStyles,
+          {borderRadius: showMenu ? 20 : 0},
+        ]}>
+        <Header navigation={navigation} />
+        <ScrollView
+          bounces={false}
+          scrollEnabled={showMenu ? false : true}
+          style={{borderRadius: showMenu ? 20 : 0}}>
+          {lastReadData.length > 0 && <LastRead />}
+          <Container
+            uriCovers={uriCovers}
             navigation={navigation}
-            Description={'Continue Reading'}
-            Title={'Favorite Mangas'}
+            Description={'Most Reading Mangas'}
+            Title={'Popular Manga'}
             isLoading={isLoading}
           />
-        )}
-      </ScrollView>
+          {favorites.length > 0 && (
+            <Favorite
+              uriCovers={favorites}
+              navigation={navigation}
+              Description={'Continue Reading'}
+              Title={'Favorite Mangas'}
+              isLoading={isLoading}
+            />
+          )}
+        </ScrollView>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  MainContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
   HeaderMainStyle: {
     backgroundColor: 'white',
     height: '10%',
