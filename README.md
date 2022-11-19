@@ -1,5 +1,10 @@
 # MangaReader using React Native 
 Manga reader app using Manga Dex public API 
+#### You can
+* Read manga
+* Save your favorites Mangas
+* See the Last Chapter you read
+* Search for Manga by its Name
 
 ## Installation
 #### 1.  Clone and Install
