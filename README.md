@@ -1,5 +1,5 @@
 # MangaReader using React Native 
-Manga reader app using Manga Readers public API 
+Manga reader app using Manga Dex public API 
 
 ## Installation
 #### 1.  Clone and Install
