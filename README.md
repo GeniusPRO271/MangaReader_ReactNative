@@ -10,7 +10,7 @@ Manga reader app using Manga Dex public API
 #### 1.  Clone and Install
 ```bash
   # Clone the repo
-  git clone https://github.com/GeniusPRO271/FullStack
+  git clone https://github.com/GeniusPRO271/MangaReader_ReactNative
   
   # Navigate to clonned folder and Install dependencies
   npm install 
