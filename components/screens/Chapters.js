@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
-import {faAngleLeft, faArrowDown} from '@fortawesome/free-solid-svg-icons';
+import {faBars, faAngleDown} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {height, width} from '../LibrabyData';
 import Animated, {
@@ -18,6 +18,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import TabBar from '../TabBar';
 
 const Chapters = ({navigation}) => {
   const route = useRoute();
@@ -26,16 +27,39 @@ const Chapters = ({navigation}) => {
   const [isLoading, SetIsLoading] = useState(true);
   const [chapters, setChapters] = useState();
   const [isBottom, setIsBottom] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const tosave = [];
   const chapter = [];
   const rotation = useSharedValue(0);
+  const scaleValue = useSharedValue(1);
+  const moveXValue = useSharedValue(0);
+  const borderRadiusValue = useSharedValue(0);
+  const animatedMenu = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: withTiming(scaleValue.value, {
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        },
+        {
+          translateX: withTiming(moveXValue.value, {
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        },
+      ],
+    };
+  });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
         {
           rotateZ: withTiming(`${rotation.value}deg`, {
-            duration: 100,
+            duration: 500,
+            useNativeDriver: true,
           }),
         },
       ],
@@ -103,11 +127,11 @@ const Chapters = ({navigation}) => {
           style={{
             justifyContent: 'center',
             alignItems: 'center',
-            padding: 50,
+            flexDirection: 'row',
           }}>
           <View
             style={{
-              width: '80%',
+              width: '70%',
               height: '90%',
               justifyContent: 'center',
               alignItems: 'center',
@@ -115,10 +139,40 @@ const Chapters = ({navigation}) => {
               backgroundColor: '#F77F00',
               borderRadius: 30,
             }}>
-            <Text style={{fontSize: 12, textAlign: 'center', color: 'white'}}>
+            <Text
+              style={{
+                fontSize: 12,
+                textAlign: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+              }}>
               {mangaTitle}
             </Text>
           </View>
+          <TouchableOpacity
+            onPress={() => {
+              showMenu ? (scaleValue.value = 1) : (scaleValue.value = 0.88);
+              showMenu
+                ? (borderRadiusValue.value = 0)
+                : (borderRadiusValue.value = 20),
+                showMenu
+                  ? (moveXValue.value = 0)
+                  : (moveXValue.value = -width * 0.55),
+                setShowMenu(!showMenu);
+            }}
+            style={{
+              width: 45,
+              height: 45,
+              right: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingHorizontal: 20,
+              backgroundColor: '#F77F00',
+              borderRadius: 50,
+              marginLeft: 20,
+            }}>
+            <FontAwesomeIcon icon={faBars} color={'white'} size={15} />
+          </TouchableOpacity>
         </SafeAreaView>
       </View>
     );
@@ -145,50 +199,68 @@ const Chapters = ({navigation}) => {
           })
         }>
         <Text style={{fontSize: 20}}>
-          Ch:{chapter} | {title}
+          <Text style={{fontWeight: 'bold'}}>{chapter} | </Text> {title}
         </Text>
       </TouchableOpacity>
     );
   };
   return !isLoading ? (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <StatusBar hidden />
-      <View>
-        <FlatList
-          data={chapters}
-          renderItem={Content}
-          contentContainerStyle={{paddingTop: height * 0.05}}
-          ref={ref => (listViewRef = ref)}
-        />
-      </View>
-      <Header />
-      <TouchableOpacity
-        onPress={() => {
-          isBottom
-            ? ((rotation.value = 0),
-              listViewRef.scrollToOffset({offset: 0, animated: true}),
-              setIsBottom(false))
-            : ((rotation.value = 180),
-              listViewRef.scrollToEnd({animated: true}),
-              setIsBottom(true));
-        }}
-        style={{
-          bottom: 50,
-          right: width * 0.05,
-          width: 60,
-          height: 60,
-          borderRadius: 60,
-          borderWidth: 1,
-          borderColor: '#F77F00',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-        }}>
-        <Animated.View style={animatedStyle}>
-          <FontAwesomeIcon icon={faArrowDown} color={'#F77F00'} size={30} />
-        </Animated.View>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
+      <TabBar navigation={navigation} />
+      <Animated.View
+        style={[
+          styles.MainContainer,
+          animatedMenu,
+          {borderRadius: showMenu ? 20 : 0},
+        ]}>
+        <StatusBar hidden />
+        <SafeAreaView>
+          <Animated.FlatList
+            data={chapters}
+            renderItem={Content}
+            style={{margin: 10}}
+            contentContainerStyle={{paddingTop: height * 0.1, bottom: 20}}
+            ref={ref => (listViewRef = ref)}
+          />
+        </SafeAreaView>
+        <Header />
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => {
+            isBottom
+              ? ((rotation.value = 0),
+                listViewRef.scrollToOffset({offset: 0, animated: true}),
+                setIsBottom(false))
+              : ((rotation.value = 180),
+                listViewRef.scrollToEnd({animated: true}),
+                setIsBottom(true));
+          }}
+          style={{
+            bottom: 50,
+            right: width * 0.05,
+            width: 40,
+            height: 40,
+            borderRadius: 40,
+            backgroundColor: '#F77F00',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.22,
+            shadowRadius: 2.22,
+
+            elevation: 3,
+          }}>
+          <Animated.View style={animatedStyle}>
+            <FontAwesomeIcon icon={faAngleDown} color={'white'} size={25} />
+          </Animated.View>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   ) : (
     <SafeAreaView
       style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
@@ -200,14 +272,30 @@ const Chapters = ({navigation}) => {
 export default Chapters;
 
 const styles = StyleSheet.create({
+  MainContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
   MainHeaderStyle: {
     position: 'absolute',
     height: 50,
     top: height * 0.1 - 50,
-    left: 0,
     right: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+
+    elevation: 3,
   },
   TopBlockSafeAreaView: {
     flexDirection: 'row',
