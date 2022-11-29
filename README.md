@@ -28,20 +28,19 @@ That's it!
 
 ### Main Menu
 
-<img src="https://user-images.githubusercontent.com/74122038/202841653-c4931a3b-d2bb-434e-8dd4-eb8f864a70b9.PNG" width="250" height="450">
+<img src="https://user-images.githubusercontent.com/74122038/204437612-ddba6e03-d9f0-4315-965b-c4f4a8ff79d6.png" width="400" height="920">
 
 ### About Page
 
-<img src="https://user-images.githubusercontent.com/74122038/202841661-03d4a6ed-ae5d-4392-9cf5-f42cf0634cb0.PNG" width="250" height="450">
+<img src="https://user-images.githubusercontent.com/74122038/202841661-03d4a6ed-ae5d-4392-9cf5-f42cf0634cb0.PNG" width="400" height="920">
 
 ### Chapters Page
 
-<img src="https://user-images.githubusercontent.com/74122038/202841659-5f9d5f3b-6ae9-4620-a1bf-0e31a5600b03.PNG" width="250" height="450">
-
+<img src="https://user-images.githubusercontent.com/74122038/204437635-1fb98132-745a-45d4-b8ee-23e53a236357.png" width="400" height="920">
 
 ### Chapter Reader
 
-<img src="https://user-images.githubusercontent.com/74122038/202841657-545464c3-c98a-4511-977e-4bda9c573850.PNG" width="250" height="450">
+<img src="https://user-images.githubusercontent.com/74122038/204437622-1a02072f-7e6f-4e1a-a261-023e4792b4f0.png" width="400" height="920">
 
 ## Credits
 
