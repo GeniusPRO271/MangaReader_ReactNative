@@ -1,25 +1,43 @@
 import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+  PanGestureHandler,
+  RefreshControl,
+  ScrollView,
+} from 'react-native-gesture-handler';
+import {
   ActivityIndicator,
+  Button,
   FlatList,
   Image,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {BottomSheetBackgroundProps} from '@gorhom/bottom-sheet';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faHeart, faAngleLeft, faStar} from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import Animated, {
+  event,
+  Extrapolate,
+  interpolate,
+  useAnimatedGestureHandler,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import {height, width} from '../LibrabyData';
+import {Use} from 'react-native-svg';
 
 const BookDetails = ({navigation}) => {
   const route = useRoute();
@@ -29,8 +47,10 @@ const BookDetails = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [bookData, setBookData] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
+  const sheetRef = useRef(null);
   const baseUrl = 'https://api.mangadex.org';
   const scaleValue = useSharedValue(1);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{scale: scaleValue.value}],
@@ -213,8 +233,7 @@ const BookDetails = ({navigation}) => {
       </View>
     );
   };
-
-  const Content = () => {
+  const Sheet_View = () => {
     let id,
       title,
       description,
@@ -233,54 +252,35 @@ const BookDetails = ({navigation}) => {
         (authorDescription = d.authorDescription),
         (genre = d.genre);
     });
-    return (
-      <View style={styles.ContentMainStyles}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          contentContainerStyle={styles.ContentSafeAreaViewStyle}>
-          <View style={styles.InsideScrollViewContentStyle}>
-            <View style={styles.AuthorTextContainerStyle}>
-              <Text style={styles.TextAuthorStyle}>{author}</Text>
-            </View>
-            <View style={styles.MangaTitleContainerStyle}>
-              <Text style={styles.MangaNameTextStyle}>{title}</Text>
-            </View>
-            <View style={styles.RatingContainerStyles}>
-              <View style={styles.SecondRatingContainerStyles}>
-                <FontAwesomeIcon
-                  icon={faStar}
-                  style={{margin: 8}}
-                  size={12}
-                  color={'#F77f00'}
-                />
-                <Text style={{fontSize: 12, opacity: 0.3, color: '#003049'}}>
-                  {Math.round(rating * 10) / 10} ( {follows} reviews )
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                width: 200 * 1,
-                height: 150 * 1.6 + 80,
-                marginHorizontal: 10,
-                borderRadius: 20,
-                backgroundColor: 'white',
-              }}>
-              <Image
-                source={{
-                  uri: img,
-                }}
-                style={styles.ImageStyle}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              padding: 20,
-              borderTopLeftRadius: 45,
-              borderTopRightRadius: 45,
+    const snapPoints = useMemo(() => ['20%', '100%'], []);
+    const CustomBackground = ({style, animatedIndex}) => {
+      //#region styles
+      const interoplateStyle = useAnimatedStyle(() => {
+        console.log(animatedIndex.value);
+        const radius = interpolate(
+          animatedIndex.value,
+          [0, 1],
+          [30, 0],
+          Extrapolate.CLAMP,
+        );
+        const shadowOpacity = interpolate(
+          animatedIndex.value,
+          [0, 1],
+          [0.25, 0],
+          Extrapolate.CLAMP,
+        );
+
+        return {
+          borderTopLeftRadius: radius,
+          borderTopRightRadius: radius,
+          shadowOpacity: shadowOpacity,
+        };
+      });
+      // render
+      return (
+        <Animated.View
+          style={[
+            {
               flex: 1,
               backgroundColor: 'white',
               shadowColor: '#000',
@@ -288,17 +288,50 @@ const BookDetails = ({navigation}) => {
                 width: 0,
                 height: 2,
               },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
+              shadowRadius: 2.62,
 
-              elevation: 5,
-            }}>
-            <FlatList
-              horizontal
-              data={genre}
-              renderItem={RenderGenre}
-              showsHorizontalScrollIndicator={false}
-            />
+              elevation: 4,
+            },
+            {...style},
+            interoplateStyle,
+          ]}
+        />
+      );
+    };
+    return (
+      <BottomSheet
+        ref={sheetRef}
+        index={-1}
+        enablePanDownToClose={true}
+        backgroundComponent={props => <CustomBackground {...props} />}
+        handleStyle={{
+          position: 'absolute',
+          width: width,
+          opacity: 0.2,
+        }}
+        snapPoints={snapPoints}>
+        <BottomSheetScrollView
+          contentContainerStyle={{padding: 20}}
+          bounces={false}>
+          <FlatList
+            horizontal
+            data={genre}
+            renderItem={RenderGenre}
+            showsHorizontalScrollIndicator={false}
+          />
+          <View style={styles.DescriptionContainerStyle}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                width: '100%',
+                paddingVertical: 10,
+              }}>
+              About The Manga
+            </Text>
+            <Text style={styles.DescriptionTextStyle}>{description}</Text>
+          </View>
+          {authorDescription && (
             <View style={styles.DescriptionContainerStyle}>
               <Text
                 style={{
@@ -307,28 +340,76 @@ const BookDetails = ({navigation}) => {
                   width: '100%',
                   paddingVertical: 10,
                 }}>
-                About The Manga
+                About The Author
               </Text>
-              <Text style={styles.DescriptionTextStyle}>{description}</Text>
+              <Text style={styles.DescriptionTextStyle}>
+                {authorDescription}
+              </Text>
             </View>
-            {authorDescription && (
-              <View style={styles.DescriptionContainerStyle}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                    width: '100%',
-                    paddingVertical: 10,
-                  }}>
-                  About The Author
-                </Text>
-                <Text style={styles.DescriptionTextStyle}>
-                  {authorDescription}
-                </Text>
-              </View>
-            )}
+          )}
+        </BottomSheetScrollView>
+      </BottomSheet>
+    );
+  };
+  const Content = () => {
+    let title, rating, follows, author;
+    bookData.map(d => {
+      (title = d.title),
+        (rating = d.rating),
+        (follows = d.follows),
+        (author = d.author);
+    });
+    return (
+      <View style={styles.ContentMainStyles}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
+          <View style={styles.AuthorTextContainerStyle}>
+            <Text style={styles.TextAuthorStyle}>{author}</Text>
           </View>
-        </ScrollView>
+          <View style={styles.MangaTitleContainerStyle}>
+            <Text style={styles.MangaNameTextStyle}>{title}</Text>
+          </View>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={styles.TextAuthorStyle}>
+              <FontAwesomeIcon
+                color="#fcbf49"
+                icon={faStar}
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingHorizontal: 15,
+                }}
+              />
+              {rating} ( {follows} reviews )
+            </Text>
+          </View>
+          <View
+            style={{
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              width: width,
+
+              flex: 12,
+            }}>
+            <TouchableOpacity
+              onPress={() => {
+                sheetRef.current?.snapToIndex(1);
+              }}>
+              <Image
+                source={{
+                  uri: img,
+                }}
+                style={{
+                  width: width / 2 + 70,
+                  height: height / 2 + 70,
+                  borderRadius: 12,
+                }}
+                resizeMode="stretch"
+              />
+            </TouchableOpacity>
+          </View>
+          <Sheet_View />
+        </View>
       </View>
     );
   };
@@ -344,7 +425,9 @@ const BookDetails = ({navigation}) => {
   ) : (
     <View style={{flex: 1}}>
       <Header />
+
       <Content />
+
       <Footer />
     </View>
   );
@@ -380,7 +463,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ContentMainStyles: {
-    flexDirection: 'column-reverse',
     flex: 1,
     backgroundColor: 'white',
   },
@@ -406,14 +488,13 @@ const styles = StyleSheet.create({
     color: '#003049',
   },
   MangaTitleContainerStyle: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 1,
+    paddingHorizontal: 20,
   },
   MangaNameTextStyle: {
     fontWeight: '500',
-    fontSize: 30,
+    fontSize: 20,
     color: '#003049',
     textAlign: 'center',
   },
@@ -442,15 +523,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '60%',
     height: 50,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
   },
   buttonTextStyle: {
     color: 'white',
@@ -462,7 +534,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: '10%',
-    backgroundColor: 'white',
+    backgroundColor: '#F77f00',
     opacity: 20,
   },
   HeaderContainerStyle: {

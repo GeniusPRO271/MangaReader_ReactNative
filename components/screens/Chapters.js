@@ -58,7 +58,7 @@ const Chapters = ({navigation}) => {
       transform: [
         {
           rotateZ: withTiming(`${rotation.value}deg`, {
-            duration: 500,
+            duration: 200,
             useNativeDriver: true,
           }),
         },
