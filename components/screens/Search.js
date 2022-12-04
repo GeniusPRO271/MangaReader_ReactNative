@@ -1,6 +1,5 @@
 import {
   ActivityIndicator,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -11,9 +10,10 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
-import {width} from '../LibrabyData';
+import {height, width} from '../LibrabyData';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faBars, faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
+import {FlashList} from '@shopify/flash-list';
 const Search = ({navigation}) => {
   const route = useRoute();
   const [input, setInput] = useState(route.params.item);
@@ -118,9 +118,15 @@ const Search = ({navigation}) => {
       );
     };
     return (
-      <View style={styles.MainContentStyle}>
+      <View style={{width: width, height: height}}>
         {!isLoading ? (
-          <FlatList renderItem={Book} data={data} numColumns={2} />
+          <FlashList
+            renderItem={Book}
+            data={data}
+            numColumns={2}
+            estimatedItemSize={20}
+            showsVerticalScrollIndicator={false}
+          />
         ) : (
           <View
             style={{

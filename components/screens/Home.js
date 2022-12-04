@@ -1,6 +1,5 @@
 import {
   ActivityIndicator,
-  FlatList,
   Image,
   SafeAreaView,
   ScrollView,
@@ -26,6 +25,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import TabBar from '../TabBar';
+import {FlashList} from '@shopify/flash-list';
 const BookFavortie = ({item, navigation}) => {
   let title = item.title;
   let img = item.ui;
@@ -107,11 +107,12 @@ const Container = ({navigation, uriCovers, Description, Title, isLoading}) => {
             <ActivityIndicator size={'small'} />
           </View>
         ) : (
-          <FlatList
+          <FlashList
             showsHorizontalScrollIndicator={false}
             horizontal
             renderItem={d => <Book item={d.item[0]} navigation={navigation} />}
             data={uriCovers}
+            estimatedItemSize={10}
           />
         )}
       </View>
@@ -139,13 +140,14 @@ const Favorite = ({navigation, uriCovers, Description, Title, isLoading}) => {
             <ActivityIndicator size={'small'} />
           </View>
         ) : (
-          <FlatList
+          <FlashList
             showsHorizontalScrollIndicator={false}
             horizontal
             renderItem={d => (
               <BookFavortie item={d.item} navigation={navigation} />
             )}
             data={uriCovers}
+            estimatedItemSize={10}
           />
         )}
       </View>

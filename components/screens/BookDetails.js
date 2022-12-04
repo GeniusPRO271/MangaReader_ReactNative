@@ -9,7 +9,6 @@ import {
 import {
   ActivityIndicator,
   Button,
-  FlatList,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -24,6 +23,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faHeart, faAngleLeft, faStar} from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {FlashList} from '@shopify/flash-list';
 import Animated, {
   event,
   Extrapolate,
@@ -301,7 +301,6 @@ const BookDetails = ({navigation}) => {
     return (
       <BottomSheet
         ref={sheetRef}
-        index={-1}
         enablePanDownToClose={true}
         backgroundComponent={props => <CustomBackground {...props} />}
         handleStyle={{
@@ -311,13 +310,15 @@ const BookDetails = ({navigation}) => {
         }}
         snapPoints={snapPoints}>
         <BottomSheetScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{padding: 20}}
           bounces={false}>
-          <FlatList
+          <FlashList
             horizontal
             data={genre}
             renderItem={RenderGenre}
             showsHorizontalScrollIndicator={false}
+            estimatedItemSize={20}
           />
           <View style={styles.DescriptionContainerStyle}>
             <Text
@@ -392,6 +393,7 @@ const BookDetails = ({navigation}) => {
               flex: 12,
             }}>
             <TouchableOpacity
+              activeOpacity={1}
               onPress={() => {
                 sheetRef.current?.snapToIndex(1);
               }}>

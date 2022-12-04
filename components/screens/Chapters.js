@@ -19,6 +19,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import TabBar from '../TabBar';
+import {FlashList} from '@shopify/flash-list';
 
 const Chapters = ({navigation}) => {
   const route = useRoute();
@@ -214,13 +215,17 @@ const Chapters = ({navigation}) => {
           {borderRadius: showMenu ? 20 : 0},
         ]}>
         <StatusBar hidden />
-        <SafeAreaView>
-          <Animated.FlatList
+        <SafeAreaView style={{height: height, width: width}}>
+          <FlashList
             data={chapters}
+            showsVerticalScrollIndicator={false}
             renderItem={Content}
-            style={{margin: 10}}
-            contentContainerStyle={{paddingTop: height * 0.1, bottom: 20}}
+            contentContainerStyle={{
+              padding: 20,
+              paddingTop: 40,
+            }}
             ref={ref => (listViewRef = ref)}
+            estimatedItemSize={1000}
           />
         </SafeAreaView>
         <Header />
