@@ -32,15 +32,15 @@ That's it!
 
 ### About Page
 
-<img src="https://user-images.githubusercontent.com/74122038/202841661-03d4a6ed-ae5d-4392-9cf5-f42cf0634cb0.PNG" width="400" height="920">
+<img src="https://user-images.githubusercontent.com/74122038/205532655-d4186ee1-7150-4cd8-a4dd-4aa3b967b418.png" width="400" height="920">
 
 ### Chapters Page
 
-<img src="https://user-images.githubusercontent.com/74122038/204437635-1fb98132-745a-45d4-b8ee-23e53a236357.png" width="400" height="920">
+<img src="https://user-images.githubusercontent.com/74122038/205533229-d42623b9-a860-4cae-941f-f42bf038d4e5.png" width="400" height="920">
 
 ### Chapter Reader
 
-<img src="https://user-images.githubusercontent.com/74122038/204437622-1a02072f-7e6f-4e1a-a261-023e4792b4f0.png" width="400" height="920">
+<img src="https://user-images.githubusercontent.com/74122038/205532666-39f6849e-ff39-4e58-ab6d-2cd4ee9781cf.png" width="400" height="920">
 
 ## Credits
 
